@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Git y GitHub desde Cero — Tutorial Interactivo</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --surface: #151820;
+    --surface2: #1c2030;
+    --border: #252a3a;
+    --accent: #f05033;
+    --accent2: #f7b731;
+    --green: #4ec9b0;
+    --blue: #569cd6;
+    --purple: #c586c0;
+    --text: #e0e4f0;
+    --muted: #6b7394;
+    --code-bg: #0a0c10;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 5rem; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; }
+
+  /* HEADER */
+  header { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem; overflow: hidden; }
+  .grid-bg { position: absolute; inset: 0; background-image: linear-gradient(rgba(240,80,51,.07) 1px, transparent 1px), linear-gradient(90deg, rgba(240,80,51,.07) 1px, transparent 1px); background-size: 40px 40px; animation: gridMove 20s linear infinite; }
+  @keyframes gridMove { to { background-position: 40px 40px; } }
+  .glow-orb { position: absolute; width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(240,80,51,.15) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%,-50%); animation: pulse 4s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)} 50%{opacity:1;transform:translate(-50%,-50%) scale(1.1)} }
+  .header-content { position: relative; z-index: 2; }
+  .tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--accent); border: 1px solid var(--accent); padding: .3rem .8rem; border-radius: 2px; letter-spacing: .1em; margin-bottom: 1.5rem; animation: fadeDown .6s ease both; }
+  h1 { font-size: clamp(3rem, 8vw, 7rem); font-weight: 800; line-height: .95; margin-bottom: 1.5rem; animation: fadeDown .7s .1s ease both; }
+  h1 span { color: var(--accent); }
+  .subtitle { font-family: 'JetBrains Mono', monospace; color: var(--muted); font-size: 1rem; max-width: 500px; margin: 0 auto 2.5rem; animation: fadeDown .7s .2s ease both; }
+  .scroll-btn { display: inline-flex; align-items: center; gap: .5rem; background: var(--accent); color: #fff; text-decoration: none; font-weight: 700; font-size: .9rem; padding: .9rem 2rem; border-radius: 2px; transition: transform .2s, box-shadow .2s; animation: fadeDown .7s .3s ease both; }
+  .scroll-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(240,80,51,.4); }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* NAV */
+  nav { position: sticky; top: 0; z-index: 100; background: rgba(13,15,20,.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; gap: 0; padding: 0 2rem; overflow-x: auto; }
+  nav a { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--muted); text-decoration: none; padding: 1rem 1.2rem; border-bottom: 2px solid transparent; transition: color .2s, border-color .2s; white-space: nowrap; cursor: pointer; }
+  nav a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* SECTIONS */
+  section { padding: 5rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--accent); letter-spacing: .15em; text-transform: uppercase; margin-bottom: .75rem; }
+  h2 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; margin-bottom: 1rem; line-height: 1.1; }
+  .lead { color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: .9rem; line-height: 1.8; max-width: 700px; margin-bottom: 3rem; }
+
+  /* VIDEO CARD */
+  .video-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; }
+  .video-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; transition: transform .3s, border-color .3s; }
+  .video-card:hover { transform: translateY(-4px); border-color: var(--accent); }
+  .video-wrap { position: relative; padding-bottom: 56.25%; background: var(--code-bg); }
+  .video-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  .video-info { padding: 1.2rem; }
+  .video-info h3 { font-size: 1rem; margin-bottom: .4rem; }
+  .video-info p { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--muted); }
+
+  /* CONCEPT CARDS */
+  .concepts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 2rem; }
+  .concept-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1.5rem; position: relative; overflow: hidden; transition: border-color .3s; }
+  .concept-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--card-color, var(--accent)); }
+  .concept-card:hover { border-color: var(--card-color, var(--accent)); }
+  .concept-icon { font-size: 2rem; margin-bottom: .75rem; }
+  .concept-card h3 { font-size: 1rem; margin-bottom: .5rem; }
+  .concept-card p { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--muted); line-height: 1.6; }
+
+  /* COMMANDS TABLE */
+  .commands-section { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin-top: 2rem; }
+  .cmd-header { display: grid; grid-template-columns: 1fr 1.5fr 1fr; background: var(--code-bg); padding: .75rem 1.5rem; font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--muted); border-bottom: 1px solid var(--border); letter-spacing: .08em; }
+  .cmd-row { display: grid; grid-template-columns: 1fr 1.5fr 1fr; padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); align-items: center; transition: background .2s; cursor: pointer; }
+  .cmd-row:last-child { border-bottom: none; }
+  .cmd-row:hover { background: rgba(240,80,51,.05); }
+  .cmd-name { font-family: 'JetBrains Mono', monospace; font-size: .85rem; color: var(--green); }
+  .cmd-desc { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--text); padding: 0 1rem; }
+  .cmd-badge { font-family: 'JetBrains Mono', monospace; font-size: .65rem; padding: .2rem .6rem; border-radius: 2px; display: inline-block; }
+  .badge-init { background: rgba(247,183,49,.15); color: var(--accent2); }
+  .badge-local { background: rgba(86,156,214,.15); color: var(--blue); }
+  .badge-remote { background: rgba(197,134,192,.15); color: var(--purple); }
+  .badge-history { background: rgba(78,201,176,.15); color: var(--green); }
+
+  /* TERMINAL */
+  .terminal { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; margin: 1.5rem 0; font-family: 'JetBrains Mono', monospace; position: relative; }
+  .terminal-bar { background: var(--surface2); padding: .6rem 1rem; display: flex; align-items: center; gap: .5rem; border-bottom: 1px solid var(--border); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; } .dot-y { background: #febc2e; } .dot-g { background: #28c840; }
+  .term-title { font-size: .72rem; color: var(--muted); margin-left: .5rem; }
+  .terminal-body { padding: 1.5rem; font-size: .82rem; line-height: 2; overflow-x: auto; }
+  .t-prompt { color: var(--green); } .t-cmd { color: var(--text); } .t-comment { color: var(--muted); }
+  .t-output { color: #9da5c0; } .t-file { color: var(--blue); } .t-flag { color: var(--purple); }
+  .t-string { color: var(--accent2); } .t-branch { color: var(--accent); }
+
+  /* DUAL TERMINAL (CMD vs Bash) */
+  .dual-terminal { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+  .dual-terminal .terminal { margin: 0; }
+  .term-env-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .65rem; padding: .15rem .5rem; border-radius: 2px; margin-left: .5rem; }
+  .badge-cmd { background: rgba(86,156,214,.2); color: var(--blue); border: 1px solid rgba(86,156,214,.3); }
+  .badge-bash { background: rgba(78,201,176,.2); color: var(--green); border: 1px solid rgba(78,201,176,.3); }
+  .t-cmd-prompt { color: var(--blue); }
+  @media (max-width: 720px) { .dual-terminal { grid-template-columns: 1fr; } }
+
+  /* FLOW DIAGRAM */
+  .flow { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; margin: 2.5rem 0; padding: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; }
+  .flow-node { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 1rem 1.5rem; text-align: center; position: relative; flex-shrink: 0; }
+  .flow-node .node-icon { font-size: 1.5rem; margin-bottom: .3rem; }
+  .flow-node .node-label { font-family: 'JetBrains Mono', monospace; font-size: .7rem; color: var(--muted); display: block; margin-bottom: .2rem; }
+  .flow-node .node-name { font-size: .85rem; font-weight: 700; }
+  .flow-arrow { display: flex; flex-direction: column; align-items: center; padding: 0 .75rem; }
+  .arrow-cmd { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: var(--accent); margin-bottom: .3rem; white-space: nowrap; }
+  .arrow-line { display: flex; align-items: center; color: var(--muted); font-size: 1.2rem; }
+
+  /* STEP BY STEP */
+  .steps { margin-top: 2rem; }
+  .step { display: grid; grid-template-columns: 60px 1fr; gap: 1.5rem; margin-bottom: 2rem; opacity: 0; transform: translateX(-20px); transition: opacity .5s, transform .5s; }
+  .step.visible { opacity: 1; transform: translateX(0); }
+  .step-num { width: 60px; height: 60px; background: var(--surface); border: 2px solid var(--accent); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 800; color: var(--accent); flex-shrink: 0; }
+  .step-content h3 { font-size: 1.1rem; margin-bottom: .5rem; }
+  .step-content p { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--muted); line-height: 1.7; margin-bottom: .75rem; }
+
+  /* COPY BUTTON */
+  .copy-btn { position: absolute; top: .8rem; right: .8rem; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: .65rem; padding: .3rem .7rem; cursor: pointer; border-radius: 2px; transition: color .2s, border-color .2s; z-index: 2; }
+  .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* QUIZ */
+  .quiz { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 2rem; margin-top: 3rem; }
+  .quiz h3 { font-size: 1.2rem; margin-bottom: 1.5rem; }
+  .quiz-q { margin-bottom: 2rem; }
+  .quiz-q p { font-family: 'JetBrains Mono', monospace; font-size: .85rem; margin-bottom: 1rem; }
+  .quiz-options { display: flex; flex-direction: column; gap: .5rem; }
+  .quiz-opt { background: var(--code-bg); border: 1px solid var(--border); padding: .8rem 1rem; font-family: 'JetBrains Mono', monospace; font-size: .78rem; cursor: pointer; border-radius: 2px; transition: border-color .2s; text-align: left; color: var(--text); }
+  .quiz-opt:hover { border-color: var(--accent); }
+  .quiz-opt.correct { border-color: var(--green); background: rgba(78,201,176,.1); color: var(--green); }
+  .quiz-opt.wrong { border-color: #ff5f57; background: rgba(255,95,87,.1); color: #ff5f57; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); text-align: center; padding: 3rem 2rem; font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--muted); }
+  footer span { color: var(--accent); }
+
+  /* CHEATSHEET */
+  .cheat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 2rem; }
+  .cheat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1.2rem; }
+  .cheat-card h4 { font-size: .8rem; font-family: 'JetBrains Mono', monospace; color: var(--accent); letter-spacing: .1em; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 1px solid var(--border); }
+  .cheat-item { display: flex; justify-content: space-between; align-items: center; padding: .4rem 0; border-bottom: 1px solid rgba(37,42,58,.5); gap: 1rem; }
+  .cheat-item:last-child { border-bottom: none; }
+  .cheat-cmd { font-family: 'JetBrains Mono', monospace; font-size: .72rem; color: var(--green); white-space: nowrap; }
+  .cheat-def { font-family: 'JetBrains Mono', monospace; font-size: .7rem; color: var(--muted); text-align: right; }
+
+  /* RESOURCE LINKS */
+  .resource-link { display: flex; align-items: flex-start; gap: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 1.2rem; text-decoration: none; color: var(--text); transition: border-color .2s, transform .2s; }
+  .resource-link:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .resource-game { border-color: rgba(78,201,176,.3); }
+  .resource-game:hover { border-color: var(--green); }
+  .resource-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: .1rem; }
+  .resource-title { font-size: .88rem; font-weight: 700; margin-bottom: .3rem; }
+  .resource-sub { font-family: 'JetBrains Mono', monospace; font-size: .7rem; color: var(--muted); line-height: 1.5; }
+  .resource-game .resource-title { color: var(--green); }
+
+  /* MAIN VIDEO AS RESOURCE CARD */
+  .resource-main { border-color: rgba(240,80,51,.4); }
+  .resource-main:hover { border-color: var(--accent); }
+  .resource-main .resource-title { color: var(--accent); }
+  .resource-thumbnail { width: 120px; min-width: 120px; height: 68px; border-radius: 3px; object-fit: cover; background: var(--code-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .resource-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+  .resource-play-overlay { position: relative; }
+  .resource-play-overlay::after { content: '▶'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 1.4rem; color: #fff; text-shadow: 0 0 8px rgba(0,0,0,.8); pointer-events: none; }
+  .resource-badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: .6rem; padding: .15rem .5rem; border-radius: 2px; background: rgba(240,80,51,.15); color: var(--accent); border: 1px solid rgba(240,80,51,.3); margin-bottom: .35rem; }
+
+  /* QUIZ V2 */
+  .quiz-attempt-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: .5rem; }
+  .attempt-badge { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--accent2); border: 1px solid var(--accent2); padding: .25rem .7rem; border-radius: 2px; }
+  .quiz-progress { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--muted); }
+  .score-panel { background: var(--code-bg); border: 1px solid var(--border); border-radius: 4px; padding: 2.5rem; text-align: center; display: none; }
+  .score-panel.show { display: block; }
+  .score-value { font-size: 5rem; font-weight: 800; line-height: 1; margin-bottom: .5rem; }
+  .score-label { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .score-detail { font-family: 'JetBrains Mono', monospace; font-size: .78rem; color: var(--muted); margin-bottom: 1.5rem; }
+  .retry-btn { background: var(--accent); color: #fff; border: none; font-family: 'JetBrains Mono', monospace; font-size: .82rem; padding: .8rem 2rem; cursor: pointer; border-radius: 2px; font-weight: 700; transition: transform .2s, box-shadow .2s; }
+  .retry-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(240,80,51,.4); }
+  .retry-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .submit-btn { margin-top: 2rem; background: var(--green); color: var(--bg); border: none; font-family: 'JetBrains Mono', monospace; font-size: .85rem; font-weight: 700; padding: .9rem 2.5rem; cursor: pointer; border-radius: 2px; transition: transform .2s, box-shadow .2s; display: block; width: 100%; }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(78,201,176,.35); }
+
+  /* INFO BOX */
+  .info-box { background: var(--surface); border: 1px solid rgba(86,156,214,.3); border-left: 3px solid var(--blue); border-radius: 4px; padding: 1.2rem 1.5rem; margin: 1rem 0; }
+  .info-box .info-title { font-family: 'JetBrains Mono', monospace; font-size: .75rem; color: var(--blue); letter-spacing: .1em; margin-bottom: .5rem; }
+  .info-box p { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--muted); line-height: 1.7; }
+  .info-box code { color: var(--green); }
+
+  /* ZONA NOTE */
+  .zone-note { background: rgba(240,80,51,.06); border: 1px solid rgba(240,80,51,.2); border-radius: 4px; padding: 1rem 1.5rem; margin: 1.5rem 0; font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: var(--muted); line-height: 1.7; }
+  .zone-note strong { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .cmd-header, .cmd-row { grid-template-columns: 1fr 1fr; }
+    .cmd-badge-col { display: none; }
+    .flow { flex-direction: column; }
+    .step { grid-template-columns: 1fr; }
+    .step-num { width: 40px; height: 40px; font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header>
+  <div class="grid-bg"></div>
+  <div class="glow-orb"></div>
+  <div class="header-content">
+    <div class="tag">// Control de versiones · Colaboración en la nube</div>
+    <h1>Aprendiendo<br><span>Git</span> y <span>GitHub</span><br>desde cero</h1>
+    <p class="subtitle">$ git init tu_conocimiento — commits, ramas, repositorios y colaboración explicados de forma clara</p>
+    <p class="subtitle">Docente: Germán Darío Arias Gómez -  TdeA </p>
+    <a href="#intro" class="scroll-btn">▶ Comenzar</a>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <a href="#intro">¿Qué es Git?</a>
+  <a href="#videos">Videos</a>
+  <a href="#conceptos">Conceptos</a>
+  <a href="#comandos">Comandos</a>
+  <a href="#flujo">Flujo</a>
+  <a href="#primer-repo">1er Repositorio</a>
+  <a href="#cheatsheet">Cheatsheet</a>
+  <a href="#github">GitHub</a>
+  <a href="#quiz">Quiz</a>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     01 — INTRO: 6 conceptos originales + 6 nuevos
+     ═══════════════════════════════════════════════════════ -->
+<section id="intro">
+  <div class="section-label">// 01 — Introducción</div>
+  <h2>¿Qué es <span style="color:var(--accent)">Git</span>?</h2>
+  <p class="lead">Git es un sistema de control de versiones distribuido. Piénsalo como una máquina del tiempo para tu código: guarda cada cambio que haces, te permite volver atrás, trabajar en paralelo con otras personas y nunca perder nada.</p>
+
+  <div class="concepts">
+    <!-- Originales -->
+    <div class="concept-card" style="--card-color: var(--accent)">
+      <div class="concept-icon">📸</div>
+      <h3>Commits</h3>
+      <p>Fotografías de tu proyecto en un momento exacto. Cada commit tiene un mensaje que describe qué cambiaste.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--blue)">
+      <div class="concept-icon">🌿</div>
+      <h3>Branches (Ramas)</h3>
+      <p>Líneas paralelas de desarrollo. Puedes trabajar en una función nueva sin afectar el código principal.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--green)">
+      <div class="concept-icon">🗂️</div>
+      <h3>Repositorio</h3>
+      <p>La carpeta especial donde Git guarda todo el historial de tu proyecto. Puede ser local o en GitHub.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--purple)">
+      <div class="concept-icon">🔀</div>
+      <h3>Merge</h3>
+      <p>Fusión de dos ramas. Combina los cambios de distintas ramas en una sola.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--accent2)">
+      <div class="concept-icon">☁️</div>
+      <h3>Remote</h3>
+      <p>Versión de tu repositorio alojada en la nube (GitHub, GitLab). Permite colaborar y hacer backups.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--accent)">
+      <div class="concept-icon">📦</div>
+      <h3>Staging Area</h3>
+      <p>Zona intermedia donde preparas los archivos que van al próximo commit. Como armar una caja antes de enviarla.</p>
+    </div>
+
+    <!-- ── 2 NUEVOS CONCEPTOS ── -->
+   
+   <div class="concept-card" style="--card-color: var(--accent2)">
+      <div class="concept-icon">📥</div>
+      <h3>Clone</h3>
+      <p>Copia completa de un repositorio remoto descargada en tu máquina local, incluyendo todo su historial de commits y ramas.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--green)">
+      <div class="concept-icon">🙈</div>
+      <h3>.gitignore</h3>
+      <p>Archivo de texto que le indica a Git qué archivos o carpetas debe ignorar completamente, como <code style="color:var(--green)">node_modules/</code> o archivos <code style="color:var(--green)">.env</code> con contraseñas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     02 — VIDEOS: principal como tarjeta + material adicional
+     ═══════════════════════════════════════════════════════ -->
+<section id="videos">
+  <div class="section-label">// 02 — Videos y recursos</div>
+  <h2>Aprende <span style="color:var(--accent)">viendo</span></h2>
+  <p class="lead">Curso práctico de Git y GitHub desde cero. El video principal es el eje de esta guía — los demás materiales complementan y profundizan cada tema.</p>
+
+  <div class="section-label" style="margin-bottom:1rem">// Video principal — referencia de esta guía</div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem; margin-bottom: 2.5rem;">
+    <a href="https://www.youtube.com/watch?v=HiXLkL42tMU" target="_blank" class="resource-link resource-main">
+      <div class="resource-thumbnail resource-play-overlay">
+        <img src="https://img.youtube.com/vi/HiXLkL42tMU/mqdefault.jpg" alt="Thumbnail Git y GitHub Fazt" onerror="this.style.display='none';this.parentElement.style.fontSize='2rem';this.parentElement.style.color='var(--accent)';this.parentElement.innerHTML='▶';">
+      </div>
+      <div>
+        <div class="resource-badge">⭐ VIDEO PRINCIPAL</div>
+        <div class="resource-title">Git y GitHub | Curso Práctico desde Cero — Fazt</div>
+        <div class="resource-sub">⏱ Completo · Comandos, ramas, GitHub y flujo real de trabajo · Referencia para esta guía</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="section-label" style="margin-bottom:1rem">// Material adicional — para profundizar</div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem;">
+    <a href="https://www.youtube.com/watch?v=mBYSUUnMt9M" target="_blank" class="resource-link">
+      <div class="resource-icon">▶</div>
+      <div>
+        <div class="resource-title">Git y GitHub desde CERO — Fazt</div>
+        <div class="resource-sub">Curso alternativo completo · Fundamentos esenciales</div>
+      </div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=3GymExBkKjE" target="_blank" class="resource-link">
+      <div class="resource-icon">▶</div>
+      <div>
+        <div class="resource-title">GitHub para principiantes — MoureDev</div>
+        <div class="resource-sub">Paso a paso · Tu primer repositorio en GitHub</div>
+      </div>
+    </a>
+    <a href="https://ohmygit.blinry.org/" target="_blank" class="resource-link resource-game">
+      <div class="resource-icon">🎮</div>
+      <div>
+        <div class="resource-title">Oh My Git! — Aprende jugando online</div>
+        <div class="resource-sub">Juego interactivo GRATUITO para aprender Git · ¡Muy recomendado!</div>
+      </div>
+    </a>
+    <a href="https://git-scm.com/book/es/v2" target="_blank" class="resource-link">
+      <div class="resource-icon">📖</div>
+      <div>
+        <div class="resource-title">Pro Git — Libro oficial en español</div>
+        <div class="resource-sub">La referencia definitiva · Gratis online · De básico a avanzado</div>
+      </div>
+    </a>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     03 — CONCEPTOS: 4 ZONAS (Working Dir, Staging, Repo local, GitHub)
+     ═══════════════════════════════════════════════════════ -->
+<section id="conceptos">
+  <div class="section-label">// 03 — Conceptos clave</div>
+  <h2>Las <span style="color:var(--accent)">4 zonas</span> de Git</h2>
+  <p class="lead">Git y GitHub juntos operan en 4 zonas distintas. Dominar este mapa mental es la clave para no perderte con ningún comando.</p>
+
+  <div class="zone-note">
+    💡 <strong>¿Por qué 4 zonas?</strong> La guía original mostraba 3 zonas locales, pero Git en la práctica —como lo explica el video de Fazt— involucra siempre una cuarta: el <strong>repositorio remoto en GitHub</strong>. Sin ella no hay colaboración ni respaldo en la nube.
+  </div>
+
+  <div class="flow">
+    <div class="flow-node">
+      <div class="node-icon">💻</div>
+      <span class="node-label">Zona 1</span>
+      <div class="node-name" style="color:var(--blue)">Working Directory</div>
+    </div>
+    <div class="flow-arrow">
+      <div class="arrow-cmd">git add</div>
+      <div class="arrow-line">──▶</div>
+    </div>
+    <div class="flow-node">
+      <div class="node-icon">📋</div>
+      <span class="node-label">Zona 2</span>
+      <div class="node-name" style="color:var(--accent2)">Staging Area</div>
+    </div>
+    <div class="flow-arrow">
+      <div class="arrow-cmd">git commit</div>
+      <div class="arrow-line">──▶</div>
+    </div>
+    <div class="flow-node">
+      <div class="node-icon">🗃️</div>
+      <span class="node-label">Zona 3</span>
+      <div class="node-name" style="color:var(--green)">Local Repository</div>
+    </div>
+    <div class="flow-arrow">
+      <div class="arrow-cmd">git push</div>
+      <div class="arrow-line">──▶</div>
+    </div>
+    <div class="flow-node" style="border-color: rgba(240,80,51,.5);">
+      <div class="node-icon">☁️</div>
+      <span class="node-label">Zona 4</span>
+      <div class="node-name" style="color:var(--accent)">GitHub (Remoto)</div>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:1rem; margin-top:1.5rem;">
+    <div class="info-box">
+      <div class="info-title">// ZONA 1 — Working Directory</div>
+      <p>Tu carpeta de trabajo normal. Aquí editas archivos con tu editor. Git los ve pero <strong style="color:var(--text)">no los rastrea automáticamente</strong>.</p>
+    </div>
+    <div class="info-box">
+      <div class="info-title">// ZONA 2 — Staging Area (Índice)</div>
+      <p>Zona de preparación. Usas <code>git add</code> para seleccionar exactamente qué cambios incluirás en el próximo commit.</p>
+    </div>
+    <div class="info-box">
+      <div class="info-title">// ZONA 3 — Repositorio local (.git)</div>
+      <p>La base de datos interna de Git. <code>git commit</code> graba aquí una instantánea permanente con su hash único.</p>
+    </div>
+    <div class="info-box" style="border-color: rgba(240,80,51,.3);">
+      <div class="info-title" style="color:var(--accent)">// ZONA 4 — GitHub (Remoto)</div>
+      <p>Servidor en la nube. <code>git push</code> sube tus commits; <code>git pull</code> baja los de tus compañeros. Aquí ocurre la colaboración.</p>
+    </div>
+  </div>
+
+  <h2 style="margin-top:3rem">Estados de un <span style="color:var(--accent)">archivo</span></h2>
+  <p class="lead">Cada archivo en Git puede estar en uno de estos estados:</p>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-title">estados-de-archivo.sh</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># Untracked — Git no conoce este archivo aún</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">Untracked files: <span class="t-file">nuevo-archivo.txt</span></span><br><br>
+<span class="t-comment"># Staged — listo para el commit</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git add nuevo-archivo.txt</span><br>
+<span class="t-output">Changes to be committed: <span class="t-file">new file: nuevo-archivo.txt</span></span><br><br>
+<span class="t-comment"># Committed — guardado en el historial</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git commit -m <span class="t-string">"mi primer archivo"</span></span><br>
+<span class="t-output">1 file changed, 0 insertions(+), 0 deletions(-)</span><br><br>
+<span class="t-comment"># Modified — fue editado después del último commit</span><br>
+<span class="t-output">modified: <span class="t-file">nuevo-archivo.txt</span></span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     04 — COMANDOS (incluye git config --list explicado)
+     ═══════════════════════════════════════════════════════ -->
+<section id="comandos">
+  <div class="section-label">// 04 — Comandos principales</div>
+  <h2>El <span style="color:var(--accent)">arsenal</span> de Git</h2>
+  <p class="lead">Haz clic en cualquier comando para ver un ejemplo en la terminal.</p>
+
+  <div class="commands-section">
+    <div class="cmd-header">
+      <span>Comando</span>
+      <span>¿Qué hace?</span>
+      <span class="cmd-badge-col">Categoría</span>
+    </div>
+    <div class="cmd-row" onclick="showExample('configlist')">
+      <span class="cmd-name">git config --list</span>
+      <span class="cmd-desc">Muestra toda la configuración activa de Git</span>
+      <span><span class="cmd-badge badge-init">Config</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('init')">
+      <span class="cmd-name">git init</span>
+      <span class="cmd-desc">Inicializa un repositorio Git en la carpeta actual</span>
+      <span><span class="cmd-badge badge-init">Inicio</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('clone')">
+      <span class="cmd-name">git clone &lt;url&gt;</span>
+      <span class="cmd-desc">Descarga un repositorio remoto completo</span>
+      <span><span class="cmd-badge badge-remote">Remoto</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('status')">
+      <span class="cmd-name">git status</span>
+      <span class="cmd-desc">Muestra el estado actual de los archivos</span>
+      <span><span class="cmd-badge badge-history">Info</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('add')">
+      <span class="cmd-name">git add &lt;archivo&gt;</span>
+      <span class="cmd-desc">Agrega archivos al área de staging</span>
+      <span><span class="cmd-badge badge-local">Local</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('commit')">
+      <span class="cmd-name">git commit -m</span>
+      <span class="cmd-desc">Guarda los cambios del staging con un mensaje</span>
+      <span><span class="cmd-badge badge-local">Local</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('log')">
+      <span class="cmd-name">git log</span>
+      <span class="cmd-desc">Muestra el historial de commits</span>
+      <span><span class="cmd-badge badge-history">Info</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('branch')">
+      <span class="cmd-name">git branch</span>
+      <span class="cmd-desc">Lista, crea o elimina ramas</span>
+      <span><span class="cmd-badge badge-local">Local</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('checkout')">
+      <span class="cmd-name">git checkout</span>
+      <span class="cmd-desc">Cambia de rama o restaura archivos</span>
+      <span><span class="cmd-badge badge-local">Local</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('merge')">
+      <span class="cmd-name">git merge &lt;rama&gt;</span>
+      <span class="cmd-desc">Fusiona una rama con la actual</span>
+      <span><span class="cmd-badge badge-local">Local</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('push')">
+      <span class="cmd-name">git push</span>
+      <span class="cmd-desc">Sube los commits locales al repositorio remoto</span>
+      <span><span class="cmd-badge badge-remote">Remoto</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('pull')">
+      <span class="cmd-name">git pull</span>
+      <span class="cmd-desc">Descarga y fusiona cambios del remoto</span>
+      <span><span class="cmd-badge badge-remote">Remoto</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('diff')">
+      <span class="cmd-name">git diff</span>
+      <span class="cmd-desc">Muestra las diferencias entre versiones</span>
+      <span><span class="cmd-badge badge-history">Info</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('fetch')">
+      <span class="cmd-name">git fetch</span>
+      <span class="cmd-desc">Descarga cambios del remoto sin fusionarlos</span>
+      <span><span class="cmd-badge badge-remote">Remoto</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('stash')">
+      <span class="cmd-name">git stash</span>
+      <span class="cmd-desc">Guarda cambios temporalmente sin hacer commit</span>
+      <span><span class="cmd-badge badge-local">Local</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('remote')">
+      <span class="cmd-name">git remote add</span>
+      <span class="cmd-desc">Conecta el repo local con un repositorio remoto</span>
+      <span><span class="cmd-badge badge-remote">Remoto</span></span>
+    </div>
+    <div class="cmd-row" onclick="showExample('gitignore')">
+      <span class="cmd-name">.gitignore</span>
+      <span class="cmd-desc">Archivo que le dice a Git qué ignorar y no rastrear</span>
+      <span><span class="cmd-badge badge-init">Config</span></span>
+    </div>
+  </div>
+
+  <!-- Terminal dinámica -->
+  <div class="terminal" id="example-terminal" style="margin-top:1.5rem; display:none">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-title" id="term-title">ejemplo</span>
+    </div>
+    <div class="terminal-body" id="term-body"></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     05 — FLUJO DE TRABAJO (basado en video Fazt)
+     ═══════════════════════════════════════════════════════ -->
+<section id="flujo">
+  <div class="section-label">// 05 — Flujo de trabajo</div>
+  <h2>El ciclo <span style="color:var(--accent)">completo</span></h2>
+  <p class="lead">Flujo de trabajo tal como lo muestra Fazt en su curso: desde crear una rama para una nueva función, hasta fusionarla en main y subirla a GitHub.</p>
+
+  <div class="info-box" style="margin-bottom:1.5rem">
+    <div class="info-title">// CICLO TÍPICO EN EL VIDEO DE FAZT</div>
+    <p>El video enseña el flujo: <code>status → checkout -b → editar → add → commit → checkout main → merge → push</code>. Este es el ciclo real de un desarrollador trabajando con ramas.</p>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      <span class="term-title">flujo-completo-fazt.sh</span>
+    </div>
+    <div class="terminal-body">
+<span class="t-comment"># ── PASO 1: Verifico en qué rama estoy y el estado ──</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">On branch <span class="t-branch">main</span></span><br>
+<span class="t-output">nothing to commit, working tree clean</span><br><br>
+<span class="t-comment"># ── PASO 2: Creo y cambio a una rama nueva para la feature ──</span><br>
+<span class="t-comment"># Buena práctica de Fazt: nunca trabajar directo en main</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git checkout <span class="t-flag">-b</span> <span class="t-branch">feature/login</span></span><br>
+<span class="t-output">Switched to a new branch 'feature/login'</span><br><br>
+<span class="t-comment"># ── PASO 3: Edito/creo archivos con mi editor ──</span><br>
+<span class="t-comment"># (aquí escribes tu código en VS Code, Sublime, etc.)</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">On branch <span class="t-branch">feature/login</span></span><br>
+<span class="t-output">Untracked files: <span class="t-file">login.html</span></span><br><br>
+<span class="t-comment"># ── PASO 4: Agrego los archivos al staging ──</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git add <span class="t-flag">.</span></span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">Changes to be committed:</span><br>
+<span class="t-output">  <span class="t-file">new file: login.html</span></span><br><br>
+<span class="t-comment"># ── PASO 5: Hago el commit con mensaje descriptivo ──</span><br>
+<span class="t-comment"># Fazt recomienda mensajes cortos y en inglés o español claro</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git commit <span class="t-flag">-m</span> <span class="t-string">"feat: agregar formulario de login"</span></span><br>
+<span class="t-output">[feature/login 3a1b2c4] feat: agregar formulario de login</span><br>
+<span class="t-output"> 1 file changed, 35 insertions(+)</span><br><br>
+<span class="t-comment"># ── PASO 6: Regreso a main y fusiono la rama ──</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git checkout <span class="t-branch">main</span></span><br>
+<span class="t-output">Switched to branch 'main'</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git merge <span class="t-branch">feature/login</span></span><br>
+<span class="t-output">Updating f3e4d2a..3a1b2c4 Fast-forward</span><br>
+<span class="t-output"> login.html | 35 ++++++++++++++++++++++++++</span><br><br>
+<span class="t-comment"># ── PASO 7: (Opcional) Elimino la rama ya fusionada ──</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git branch <span class="t-flag">-d</span> <span class="t-branch">feature/login</span></span><br>
+<span class="t-output">Deleted branch feature/login (was 3a1b2c4).</span><br><br>
+<span class="t-comment"># ── PASO 8: Subo los cambios a GitHub 🚀 ──</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git push origin <span class="t-branch">main</span></span><br>
+<span class="t-output">Branch 'main' set up to track remote branch 'main' from 'origin'.</span><br>
+<span class="t-output" style="color:var(--green)">✓ Cambios en producción</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     06 — PRIMER REPOSITORIO (CMD y Bash en paralelo)
+     ═══════════════════════════════════════════════════════ -->
+<section id="primer-repo">
+  <div class="section-label">// 06 — Ejemplo práctico</div>
+  <h2>Tu <span style="color:var(--accent)">primer</span> repositorio</h2>
+  <p class="lead">Vamos paso a paso. Al finalizar tendrás un proyecto en GitHub. Cada paso muestra los comandos en paralelo para <strong style="color:var(--blue)">CMD (Windows)</strong> y <strong style="color:var(--green)">Bash (Linux/Mac/Git Bash)</strong>.</p>
+
+  <div class="info-box" style="margin-bottom: 2rem;">
+    <div class="info-title">// ¿CMD o Bash?</div>
+    <p><strong style="color:var(--blue)">CMD</strong> es el símbolo del sistema de Windows (<code>Win + R → cmd</code>). <strong style="color:var(--green)">Bash</strong> es la terminal de Linux, macOS o Git Bash en Windows. Git funciona igual en ambos; la diferencia está en algunos comandos del sistema operativo como crear archivos o carpetas.</p>
+  </div>
+
+  <div class="steps" id="steps">
+
+    <!-- PASO 1: Configura Git -->
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h3>Configura Git por primera vez</h3>
+        <p>Solo se hace una vez. Establece tu nombre y correo para que los commits queden firmados.</p>
+        <div class="dual-terminal">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">configuración</span><span class="term-env-badge badge-cmd">CMD</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-comment">REM Configura nombre y correo</span><br>
+<span class="t-cmd-prompt">C:\&gt; </span><span class="t-cmd">git config --global user.name <span class="t-string">"Tu Nombre"</span></span><br>
+<span class="t-cmd-prompt">C:\&gt; </span><span class="t-cmd">git config --global user.email <span class="t-string">"tu@email.com"</span></span><br>
+<span class="t-cmd-prompt">C:\&gt; </span><span class="t-cmd">git config --list</span><br>
+<span class="t-output">user.name=Tu Nombre</span><br>
+<span class="t-output">user.email=tu@email.com</span><br>
+<span class="t-output">core.autocrlf=true</span>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">configuración</span><span class="term-env-badge badge-bash">Bash</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-comment"># Configura nombre y correo</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git config --global user.name <span class="t-string">"Tu Nombre"</span></span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git config --global user.email <span class="t-string">"tu@email.com"</span></span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git config --list</span><br>
+<span class="t-output">user.name=Tu Nombre</span><br>
+<span class="t-output">user.email=tu@email.com</span><br>
+<span class="t-output">core.repositoryformatversion=0</span>
+            </div>
+          </div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">// ¿Qué hace git config --list?</div>
+          <p><code>git config --list</code> imprime en la terminal <strong style="color:var(--text)">todas las configuraciones que Git tiene activas</strong> en ese momento, combinando tres niveles: <strong style="color:var(--text)">sistema</strong> (para todos los usuarios del PC), <strong style="color:var(--text)">global</strong> (para tu usuario, archivo <code>~/.gitconfig</code>) y <strong style="color:var(--text)">local</strong> (solo para el repositorio actual, archivo <code>.git/config</code>). Es el comando de diagnóstico número uno: si Git no tiene tu nombre, no sabe tu email, o usa el editor equivocado, aquí lo ves. También aparecen configuraciones automáticas del sistema como <code>core.autocrlf</code> o el editor por defecto.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 2: Crea la carpeta -->
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h3>Crea la carpeta del proyecto</h3>
+        <p>Crea una carpeta nueva y entra en ella. Aquí vivirá tu proyecto. Los comandos del sistema operativo difieren entre CMD y Bash.</p>
+        <div class="dual-terminal">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">crear carpeta</span><span class="term-env-badge badge-cmd">CMD</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-cmd-prompt">C:\Users\tú&gt; </span><span class="t-cmd">mkdir mi-primer-proyecto</span><br>
+<span class="t-cmd-prompt">C:\Users\tú&gt; </span><span class="t-cmd">cd mi-primer-proyecto</span><br>
+<span class="t-cmd-prompt">C:\...\mi-primer-proyecto&gt; </span><span class="t-cmd">cd</span><br>
+<span class="t-output">C:\Users\tú\mi-primer-proyecto</span>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">crear carpeta</span><span class="term-env-badge badge-bash">Bash</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-prompt">$ </span><span class="t-cmd">mkdir mi-primer-proyecto</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">cd mi-primer-proyecto</span><br>
+<span class="t-prompt">~/mi-primer-proyecto$ </span><span class="t-cmd">pwd</span><br>
+<span class="t-output">/home/usuario/mi-primer-proyecto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 3: git init -->
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h3>Inicializa el repositorio</h3>
+        <p>Este comando crea la carpeta oculta <code style="color:var(--green)">.git</code> donde Git guardará todo el historial. Funciona igual en ambos entornos.</p>
+        <div class="dual-terminal">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">git init</span><span class="term-env-badge badge-cmd">CMD</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-cmd-prompt">C:\...\mi-primer-proyecto&gt; </span><span class="t-cmd">git init</span><br>
+<span class="t-output">Initialized empty Git repository in</span><br>
+<span class="t-output">C:/Users/tú/mi-primer-proyecto/.git/</span><br><br>
+<span class="t-cmd-prompt">C:\...\mi-primer-proyecto&gt; </span><span class="t-cmd">dir /a</span><br>
+<span class="t-output"><span class="t-file">.git</span>   ← carpeta oculta de Git</span>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">git init</span><span class="term-env-badge badge-bash">Bash</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-prompt">$ </span><span class="t-cmd">git init</span><br>
+<span class="t-output">Initialized empty Git repository in</span><br>
+<span class="t-output">/home/usuario/mi-primer-proyecto/.git/</span><br><br>
+<span class="t-prompt">$ </span><span class="t-cmd">ls -la</span><br>
+<span class="t-output">drwxr-xr-x <span class="t-file">.git</span>   ← aquí vive Git</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 4: Crea README -->
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h3>Crea tu primer archivo</h3>
+        <p>Crea un archivo README.md. Aquí CMD y Bash difieren notablemente en cómo crean y escriben archivos desde la terminal.</p>
+        <div class="dual-terminal">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">crear archivo</span><span class="term-env-badge badge-cmd">CMD</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-comment">REM En CMD se usa echo y redirección</span><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">echo # Mi Primer Proyecto > README.md</span><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">echo Hola Git! >> README.md</span><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">type README.md</span><br>
+<span class="t-output"># Mi Primer Proyecto</span><br>
+<span class="t-output">Hola Git!</span>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">crear archivo</span><span class="term-env-badge badge-bash">Bash</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-comment"># En Bash también funciona echo</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">echo <span class="t-string">"# Mi Primer Proyecto"</span> > README.md</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">echo <span class="t-string">"Hola Git!"</span> >> README.md</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">cat README.md</span><br>
+<span class="t-output"># Mi Primer Proyecto</span><br>
+<span class="t-output">Hola Git!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 5: git add -->
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h3>Agrega el archivo al staging</h3>
+        <p>Con <code style="color:var(--green)">git add</code> le dices a Git qué archivos quieres incluir en el próximo commit. Este comando es idéntico en CMD y Bash.</p>
+        <div class="dual-terminal">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">git add</span><span class="term-env-badge badge-cmd">CMD</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git status</span><br>
+<span class="t-output">Untracked files: <span class="t-file">README.md</span></span><br><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git add README.md</span><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git status</span><br>
+<span class="t-output">Changes to be committed:</span><br>
+<span class="t-output">  <span style="color:var(--green)">new file: README.md</span></span>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">git add</span><span class="term-env-badge badge-bash">Bash</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">Untracked files: <span class="t-file">README.md</span></span><br><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git add README.md</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">Changes to be committed:</span><br>
+<span class="t-output">  <span style="color:var(--green)">new file: README.md</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 6: git commit -->
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h3>Haz tu primer commit</h3>
+        <p>El commit guarda permanentemente los cambios con un mensaje descriptivo. Comando idéntico en ambos entornos.</p>
+        <div class="dual-terminal">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">git commit</span><span class="term-env-badge badge-cmd">CMD</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git commit -m <span class="t-string">"feat: primer commit"</span></span><br>
+<span class="t-output">[main (root-commit) a1b2c3d]</span><br>
+<span class="t-output"> feat: primer commit</span><br>
+<span class="t-output"> 1 file changed, 2 insertions(+)</span><br><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git log --oneline</span><br>
+<span class="t-output"><span style="color:var(--accent2)">a1b2c3d</span> feat: primer commit</span>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">git commit</span><span class="term-env-badge badge-bash">Bash</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-prompt">$ </span><span class="t-cmd">git commit -m <span class="t-string">"feat: primer commit"</span></span><br>
+<span class="t-output">[main (root-commit) a1b2c3d]</span><br>
+<span class="t-output"> feat: primer commit</span><br>
+<span class="t-output"> 1 file changed, 2 insertions(+)</span><br><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git log --oneline</span><br>
+<span class="t-output"><span style="color:var(--accent2)">a1b2c3d</span> feat: primer commit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PASO 7: push a GitHub -->
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <h3>Conéctalo a GitHub y sube el código</h3>
+        <p>Crea un repositorio vacío en github.com, luego conecta tu repo local con el remoto y sube todo. Comandos idénticos en ambos entornos.</p>
+        <div class="dual-terminal">
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">push a GitHub</span><span class="term-env-badge badge-cmd">CMD</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-comment">REM Conecta tu repo local con GitHub</span><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git remote add origin <span class="t-string">https://github.com/tú/mi-proyecto.git</span></span><br><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git remote -v</span><br>
+<span class="t-output">origin  https://github.com/tú/mi-proyecto.git (fetch)</span><br>
+<span class="t-output">origin  https://github.com/tú/mi-proyecto.git (push)</span><br><br>
+<span class="t-cmd-prompt">C:\...&gt; </span><span class="t-cmd">git push -u origin main</span><br>
+<span class="t-output">Writing objects: 100% (3/3), done.</span><br>
+<span class="t-output" style="color:var(--green)">Branch 'main' tracks origin/main ✓</span>
+            </div>
+          </div>
+          <div class="terminal">
+            <div class="terminal-bar">
+              <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+              <span class="term-title">push a GitHub</span><span class="term-env-badge badge-bash">Bash</span>
+            </div>
+            <div class="terminal-body">
+<span class="t-comment"># Conecta tu repo local con GitHub</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git remote add origin <span class="t-string">https://github.com/tú/mi-proyecto.git</span></span><br><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git remote -v</span><br>
+<span class="t-output">origin  https://github.com/tú/mi-proyecto.git (fetch)</span><br>
+<span class="t-output">origin  https://github.com/tú/mi-proyecto.git (push)</span><br><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git push -u origin main</span><br>
+<span class="t-output">Writing objects: 100% (3/3), done.</span><br>
+<span class="t-output" style="color:var(--green)">✓ Tu proyecto está ahora en GitHub!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CHEATSHEET -->
+<section id="cheatsheet">
+  <div class="section-label">// 07 — Referencia rápida</div>
+  <h2>Cheat<span style="color:var(--accent)">sheet</span></h2>
+  <p class="lead">Guarda esta página como referencia. Todos los comandos que necesitas en un vistazo.</p>
+
+  <div class="cheat-grid">
+    <div class="cheat-card">
+      <h4>🚀 CONFIGURAR</h4>
+      <div class="cheat-item"><span class="cheat-cmd">git config --global user.name</span><span class="cheat-def">Tu nombre</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git config --global user.email</span><span class="cheat-def">Tu email</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git config --list</span><span class="cheat-def">Ver toda la config activa</span></div>
+    </div>
+    <div class="cheat-card">
+      <h4>📁 INICIAR</h4>
+      <div class="cheat-item"><span class="cheat-cmd">git init</span><span class="cheat-def">Nuevo repositorio</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git clone &lt;url&gt;</span><span class="cheat-def">Clonar remoto</span></div>
+    </div>
+    <div class="cheat-card">
+      <h4>📸 COMMIT</h4>
+      <div class="cheat-item"><span class="cheat-cmd">git status</span><span class="cheat-def">Ver estado</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git add .</span><span class="cheat-def">Agregar todo</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git add &lt;archivo&gt;</span><span class="cheat-def">Agregar uno</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git commit -m "msg"</span><span class="cheat-def">Guardar cambios</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git commit --amend</span><span class="cheat-def">Modificar último commit</span></div>
+    </div>
+    <div class="cheat-card">
+      <h4>🌿 RAMAS</h4>
+      <div class="cheat-item"><span class="cheat-cmd">git branch</span><span class="cheat-def">Listar ramas</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git branch &lt;nombre&gt;</span><span class="cheat-def">Crear rama</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git checkout &lt;rama&gt;</span><span class="cheat-def">Cambiar rama</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git checkout -b &lt;rama&gt;</span><span class="cheat-def">Crear y cambiar</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git merge &lt;rama&gt;</span><span class="cheat-def">Fusionar rama</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git branch -d &lt;rama&gt;</span><span class="cheat-def">Eliminar rama</span></div>
+    </div>
+    <div class="cheat-card">
+      <h4>☁️ REMOTO</h4>
+      <div class="cheat-item"><span class="cheat-cmd">git remote add origin</span><span class="cheat-def">Conectar remoto</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git remote -v</span><span class="cheat-def">Ver remotos</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git push origin main</span><span class="cheat-def">Subir a GitHub</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git pull</span><span class="cheat-def">Bajar cambios</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git fetch</span><span class="cheat-def">Traer sin fusionar</span></div>
+    </div>
+    <div class="cheat-card">
+      <h4>🔍 HISTORIAL</h4>
+      <div class="cheat-item"><span class="cheat-cmd">git log</span><span class="cheat-def">Ver commits</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git log --oneline</span><span class="cheat-def">Log resumido</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git diff</span><span class="cheat-def">Ver diferencias</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git show &lt;hash&gt;</span><span class="cheat-def">Ver commit</span></div>
+      <div class="cheat-item"><span class="cheat-cmd">git stash</span><span class="cheat-def">Guardar temporal</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- GITHUB -->
+<section id="github">
+  <div class="section-label">// 08 — GitHub</div>
+  <h2>De local a <span style="color:var(--accent)">la nube</span></h2>
+  <p class="lead">GitHub es la plataforma más popular para alojar repositorios Git, colaborar con otros desarrolladores y mostrar tu trabajo al mundo.</p>
+  <div class="concepts" style="margin-top:2rem">
+    <div class="concept-card" style="--card-color: var(--accent)">
+      <div class="concept-icon">🍴</div>
+      <h3>Fork</h3>
+      <p>Copia de un repositorio ajeno en tu cuenta de GitHub. Puedes modificarlo sin afectar el original.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--blue)">
+      <div class="concept-icon">🔃</div>
+      <h3>Pull Request</h3>
+      <p>Solicitud para que el dueño del repo original incorpore tus cambios. Es la base de la colaboración open source.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--green)">
+      <div class="concept-icon">⭐</div>
+      <h3>Stars & Watch</h3>
+      <p>Marcar un repo como favorito o seguirlo para recibir notificaciones de cambios importantes.</p>
+    </div>
+    <div class="concept-card" style="--card-color: var(--purple)">
+      <div class="concept-icon">🐛</div>
+      <h3>Issues</h3>
+      <p>Sistema de tickets para reportar bugs, proponer mejoras o discutir cambios en un proyecto.</p>
+    </div>
+  </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz">
+  <div class="section-label">// 09 — Pon a prueba lo aprendido</div>
+  <h2>Quick <span style="color:var(--accent)">Quiz</span></h2>
+  <p class="lead">15 preguntas · 3 intentos máximo · Calificación de 0.0 a 5.0. Selecciona tu respuesta y al terminar haz clic en "Ver calificación".</p>
+
+  <div class="quiz" id="quizContainer">
+    <div class="quiz-attempt-info">
+      <span class="attempt-badge" id="attemptBadge">Intento 1 de 3</span>
+      <span class="quiz-progress" id="quizProgress">0 / 15 respondidas</span>
+    </div>
+
+    <div class="quiz-q" id="qq1">
+      <p>1. ¿Qué comando inicializa un repositorio Git vacío?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="1" data-correct="false">git start</button>
+        <button class="quiz-opt" data-q="1" data-correct="true">git init</button>
+        <button class="quiz-opt" data-q="1" data-correct="false">git create</button>
+        <button class="quiz-opt" data-q="1" data-correct="false">git new</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq2">
+      <p>2. ¿Qué hace <code style="color:var(--green)">git add .</code>?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="2" data-correct="false">Hace commit de todos los archivos</button>
+        <button class="quiz-opt" data-q="2" data-correct="false">Sube archivos a GitHub</button>
+        <button class="quiz-opt" data-q="2" data-correct="true">Agrega todos los archivos al staging area</button>
+        <button class="quiz-opt" data-q="2" data-correct="false">Elimina archivos del repositorio</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq3">
+      <p>3. ¿Cuál es el orden correcto del flujo básico de Git?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="3" data-correct="false">commit → add → push</button>
+        <button class="quiz-opt" data-q="3" data-correct="true">add → commit → push</button>
+        <button class="quiz-opt" data-q="3" data-correct="false">push → add → commit</button>
+        <button class="quiz-opt" data-q="3" data-correct="false">init → push → commit</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq4">
+      <p>4. ¿Qué guarda un <strong>commit</strong>?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="4" data-correct="false">Solo los archivos nuevos</button>
+        <button class="quiz-opt" data-q="4" data-correct="false">Una copia en GitHub</button>
+        <button class="quiz-opt" data-q="4" data-correct="true">Una fotografía del estado del proyecto en ese momento</button>
+        <button class="quiz-opt" data-q="4" data-correct="false">El historial de errores</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq5">
+      <p>5. ¿Qué comando muestra el estado actual de los archivos en Git?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="5" data-correct="false">git log</button>
+        <button class="quiz-opt" data-q="5" data-correct="true">git status</button>
+        <button class="quiz-opt" data-q="5" data-correct="false">git show</button>
+        <button class="quiz-opt" data-q="5" data-correct="false">git info</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq6">
+      <p>6. ¿Cuál es la diferencia entre <code style="color:var(--green)">git fetch</code> y <code style="color:var(--green)">git pull</code>?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="6" data-correct="false">No hay diferencia, hacen lo mismo</button>
+        <button class="quiz-opt" data-q="6" data-correct="true">fetch trae los cambios sin fusionarlos; pull los trae y fusiona automáticamente</button>
+        <button class="quiz-opt" data-q="6" data-correct="false">pull solo descarga archivos nuevos; fetch descarga todo</button>
+        <button class="quiz-opt" data-q="6" data-correct="false">fetch sube cambios; pull los baja</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq7">
+      <p>7. ¿Qué es una <strong>rama (branch)</strong> en Git?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="7" data-correct="false">Una copia de seguridad del proyecto</button>
+        <button class="quiz-opt" data-q="7" data-correct="false">Un servidor remoto donde se guarda el código</button>
+        <button class="quiz-opt" data-q="7" data-correct="true">Una línea paralela de desarrollo que no afecta la rama principal</button>
+        <button class="quiz-opt" data-q="7" data-correct="false">Un archivo especial que guarda la configuración de Git</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq8">
+      <p>8. ¿Qué comando se usa para crear una rama Y cambiar a ella al mismo tiempo?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="8" data-correct="false">git branch -new nombre</button>
+        <button class="quiz-opt" data-q="8" data-correct="true">git checkout -b nombre</button>
+        <button class="quiz-opt" data-q="8" data-correct="false">git switch --create nombre</button>
+        <button class="quiz-opt" data-q="8" data-correct="false">git branch --move nombre</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq9">
+      <p>9. ¿Qué es el <strong>Staging Area</strong> (área de preparación)?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="9" data-correct="false">El servidor donde se sube el código</button>
+        <button class="quiz-opt" data-q="9" data-correct="false">La carpeta .git donde Git guarda todo</button>
+        <button class="quiz-opt" data-q="9" data-correct="true">La zona intermedia donde preparas qué cambios irán en el próximo commit</button>
+        <button class="quiz-opt" data-q="9" data-correct="false">El historial de todos los commits realizados</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq10">
+      <p>10. ¿Qué hace <code style="color:var(--green)">git clone &lt;url&gt;</code>?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="10" data-correct="false">Crea un repositorio vacío en GitHub</button>
+        <button class="quiz-opt" data-q="10" data-correct="true">Descarga una copia completa de un repositorio remoto, incluyendo su historial</button>
+        <button class="quiz-opt" data-q="10" data-correct="false">Copia solo los archivos más recientes del repositorio</button>
+        <button class="quiz-opt" data-q="10" data-correct="false">Sincroniza los cambios locales con el remoto</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq11">
+      <p>11. ¿Qué muestra <code style="color:var(--green)">git config --list</code>?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="11" data-correct="false">Solo el nombre y correo configurados</button>
+        <button class="quiz-opt" data-q="11" data-correct="true">Toda la configuración activa de Git (sistema, global y local combinados)</button>
+        <button class="quiz-opt" data-q="11" data-correct="false">El historial de commits del repositorio</button>
+        <button class="quiz-opt" data-q="11" data-correct="false">Las ramas existentes en el repositorio</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq12">
+      <p>12. ¿Cuántas zonas involucra el flujo completo de Git y GitHub?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="12" data-correct="false">2 zonas: local y remota</button>
+        <button class="quiz-opt" data-q="12" data-correct="false">3 zonas: working, staging y repo local</button>
+        <button class="quiz-opt" data-q="12" data-correct="true">4 zonas: working directory, staging area, repo local y GitHub remoto</button>
+        <button class="quiz-opt" data-q="12" data-correct="false">5 zonas incluyendo caché y backup</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq13">
+      <p>13. ¿Para qué sirve <code style="color:var(--green)">git stash</code>?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="13" data-correct="false">Para eliminar permanentemente cambios no deseados</button>
+        <button class="quiz-opt" data-q="13" data-correct="true">Para guardar temporalmente cambios sin hacer commit y tener el árbol limpio</button>
+        <button class="quiz-opt" data-q="13" data-correct="false">Para subir cambios al repositorio remoto</button>
+        <button class="quiz-opt" data-q="13" data-correct="false">Para ver las diferencias entre dos ramas</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq14">
+      <p>14. ¿Cuál es la función del archivo <code style="color:var(--green)">.gitignore</code>?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="14" data-correct="false">Almacenar las credenciales de GitHub</button>
+        <button class="quiz-opt" data-q="14" data-correct="false">Guardar la configuración de ramas del proyecto</button>
+        <button class="quiz-opt" data-q="14" data-correct="true">Indicarle a Git qué archivos o carpetas debe ignorar y no rastrear</button>
+        <button class="quiz-opt" data-q="14" data-correct="false">Registrar el historial de comandos ejecutados</button>
+      </div>
+    </div>
+    <div class="quiz-q" id="qq15">
+      <p>15. ¿Qué comando conecta tu repositorio local con uno remoto en GitHub?</p>
+      <div class="quiz-options">
+        <button class="quiz-opt" data-q="15" data-correct="false">git push origin main</button>
+        <button class="quiz-opt" data-q="15" data-correct="false">git connect --remote origin</button>
+        <button class="quiz-opt" data-q="15" data-correct="true">git remote add origin &lt;url&gt;</button>
+        <button class="quiz-opt" data-q="15" data-correct="false">git link remote &lt;url&gt;</button>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitQuiz" onclick="submitQuiz()">Ver calificación →</button>
+  </div>
+
+  <div class="score-panel" id="scorePanel">
+    <div class="score-value" id="scoreValue">—</div>
+    <div class="score-label">/ 5.0</div>
+    <div class="score-detail" id="scoreDetail"></div>
+    <div id="scoreMsg" style="font-family:'JetBrains Mono',monospace;font-size:.82rem;margin-bottom:1.5rem;padding:.75rem;border-radius:3px;"></div>
+    <button class="retry-btn" id="retryBtn" onclick="retryQuiz()">🔄 Intentar de nuevo</button>
+  </div>
+</section>
+
+<footer>
+  <p>Hecho para estudiantes 🚀 &nbsp;·&nbsp; <span>git commit -m "aprendo cada día"</span></p>
+  <p style="margin-top:.5rem">Git fue creado por <span>Linus Torvalds</span> en 2005</p>
+</footer>
+
+<script>
+const examples = {
+  configlist: {
+    title: 'git config --list — qué muestra y para qué sirve',
+    html: `<span class="t-comment"># Muestra TODA la configuración activa de Git</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git config <span class="t-flag">--list</span></span><br>
+<span class="t-output">credential.helper=osxkeychain      <span class="t-comment">← gestor de credenciales del SO</span></span><br>
+<span class="t-output">user.name=Tu Nombre                <span class="t-comment">← tu nombre (global)</span></span><br>
+<span class="t-output">user.email=tu@email.com            <span class="t-comment">← tu correo (global)</span></span><br>
+<span class="t-output">core.repositoryformatversion=0     <span class="t-comment">← config del repo local</span></span><br>
+<span class="t-output">core.filemode=true</span><br>
+<span class="t-output">core.bare=false</span><br>
+<span class="t-output">core.autocrlf=input                <span class="t-comment">← saltos de línea</span></span><br>
+<span class="t-output">remote.origin.url=https://github.com/usuario/repo.git</span><br>
+<span class="t-output">branch.main.remote=origin</span><br><br>
+<span class="t-comment"># Ver solo un valor específico</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git config <span class="t-flag">--global</span> user.name</span><br>
+<span class="t-output">Tu Nombre</span><br><br>
+<span class="t-comment"># Ver de dónde viene cada valor (muy útil para debug)</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git config <span class="t-flag">--list --show-origin</span></span><br>
+<span class="t-output">file:/home/usuario/.gitconfig   user.name=Tu Nombre</span><br>
+<span class="t-output">file:.git/config                core.repositoryformatversion=0</span>`
+  },
+  init: {
+    title: 'git init — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">mkdir proyecto && cd proyecto</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git init</span><br>
+<span class="t-output">Initialized empty Git repository in /proyecto/.git/</span>`
+  },
+  clone: {
+    title: 'git clone — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">git clone <span class="t-string">https://github.com/usuario/repo.git</span></span><br>
+<span class="t-output">Cloning into 'repo'...</span><br>
+<span class="t-output">remote: Enumerating objects: 10, done.</span><br>
+<span class="t-output">Receiving objects: 100% (10/10), done.</span>`
+  },
+  status: {
+    title: 'git status — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">On branch <span class="t-branch">main</span></span><br>
+<span class="t-output">Changes not staged for commit:</span><br>
+<span class="t-output">  modified:   <span class="t-file">index.html</span></span><br>
+<span class="t-output">Untracked files:</span><br>
+<span class="t-output">  <span class="t-file">styles.css</span></span>`
+  },
+  add: {
+    title: 'git add — ejemplo',
+    html: `<span class="t-comment"># Agregar un archivo específico</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git add <span class="t-file">index.html</span></span><br><br>
+<span class="t-comment"># Agregar todos los archivos</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git add <span class="t-flag">.</span></span><br><br>
+<span class="t-comment"># Agregar un tipo de archivo</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git add <span class="t-flag">*.js</span></span>`
+  },
+  commit: {
+    title: 'git commit — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">git commit <span class="t-flag">-m</span> <span class="t-string">"fix: corregir error en formulario"</span></span><br>
+<span class="t-output">[main a1b2c3d] fix: corregir error en formulario</span><br>
+<span class="t-output"> 1 file changed, 5 insertions(+), 2 deletions(-)</span><br><br>
+<span class="t-comment"># Agregar y commitear en un paso</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git commit <span class="t-flag">-am</span> <span class="t-string">"update: cambios menores"</span></span>`
+  },
+  log: {
+    title: 'git log — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">git log <span class="t-flag">--oneline</span></span><br>
+<span class="t-output"><span style="color:var(--accent2)">a1b2c3d</span> feat: agregar login</span><br>
+<span class="t-output"><span style="color:var(--accent2)">9f8e7d6</span> fix: error en CSS</span><br>
+<span class="t-output"><span style="color:var(--accent2)">3c4d5e6</span> feat: primer commit</span><br><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git log <span class="t-flag">--oneline --graph</span></span><br>
+<span class="t-output">* a1b2c3d feat: agregar login</span><br>
+<span class="t-output">| * 7a8b9c0 feature/dark-mode</span><br>
+<span class="t-output">|/</span><br>
+<span class="t-output">* 9f8e7d6 fix: error en CSS</span>`
+  },
+  branch: {
+    title: 'git branch — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">git branch</span><br>
+<span class="t-output">* <span class="t-branch">main</span></span><br>
+<span class="t-output">  develop</span><br><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git branch <span class="t-branch">feature/nueva-pagina</span></span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git branch</span><br>
+<span class="t-output">* <span class="t-branch">main</span></span><br>
+<span class="t-output">  develop</span><br>
+<span class="t-output">  feature/nueva-pagina</span>`
+  },
+  checkout: {
+    title: 'git checkout — ejemplo',
+    html: `<span class="t-comment"># Cambiar a una rama existente</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git checkout <span class="t-branch">develop</span></span><br>
+<span class="t-output">Switched to branch 'develop'</span><br><br>
+<span class="t-comment"># Crear y cambiar a nueva rama</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git checkout <span class="t-flag">-b</span> <span class="t-branch">feature/login</span></span><br>
+<span class="t-output">Switched to a new branch 'feature/login'</span>`
+  },
+  merge: {
+    title: 'git merge — ejemplo',
+    html: `<span class="t-comment"># Estoy en main, fusiono feature/login</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git checkout <span class="t-branch">main</span></span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git merge <span class="t-branch">feature/login</span></span><br>
+<span class="t-output">Updating f3e4d2a..a1b2c3d</span><br>
+<span class="t-output">Fast-forward</span><br>
+<span class="t-output"> login.html | 20 ++++++++++</span><br>
+<span class="t-output"> 1 file changed, 20 insertions(+)</span>`
+  },
+  push: {
+    title: 'git push — ejemplo',
+    html: `<span class="t-comment"># Primera vez (establece tracking)</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git push <span class="t-flag">-u</span> origin <span class="t-branch">main</span></span><br>
+<span class="t-output">Branch 'main' set up to track remote branch.</span><br><br>
+<span class="t-comment"># Las siguientes veces</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git push</span><br>
+<span class="t-output">Enumerating objects: 5, done.</span><br>
+<span class="t-output">Writing objects: 100% (3/3), done.</span>`
+  },
+  pull: {
+    title: 'git pull — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">git pull</span><br>
+<span class="t-output">remote: Enumerating objects: 4, done.</span><br>
+<span class="t-output">Updating a1b2c3d..9f8e7d6</span><br>
+<span class="t-output">Fast-forward</span><br>
+<span class="t-output"> README.md | 3 +++</span><br>
+<span class="t-output"> 1 file changed, 3 insertions(+)</span>`
+  },
+  diff: {
+    title: 'git diff — ejemplo',
+    html: `<span class="t-prompt">$ </span><span class="t-cmd">git diff</span><br>
+<span class="t-output">diff --git a/index.html b/index.html</span><br>
+<span class="t-output">@@ -10,7 +10,7 @@</span><br>
+<span class="t-output" style="color:#ff5f57">-  &lt;h1&gt;Hola&lt;/h1&gt;</span><br>
+<span class="t-output" style="color:var(--green)">+  &lt;h1&gt;Hola Mundo!&lt;/h1&gt;</span>`
+  },
+  fetch: {
+    title: 'git fetch vs git pull — ejemplo',
+    html: `<span class="t-comment"># fetch: solo DESCARGA, no fusiona</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git fetch origin</span><br>
+<span class="t-output">remote: Enumerating objects: 4, done.</span><br>
+<span class="t-output">From https://github.com/usuario/repo</span><br>
+<span class="t-output">   a1b2c3d..9f8e7d6  main -> origin/main</span><br><br>
+<span class="t-comment"># pull: descarga Y fusiona automáticamente</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git pull</span><br>
+<span class="t-output">Updating a1b2c3d..9f8e7d6  Fast-forward</span><br>
+<span class="t-output"> README.md | 3 +++  1 file changed, 3 insertions(+)</span>`
+  },
+  stash: {
+    title: 'git stash — ejemplo',
+    html: `<span class="t-comment"># Tengo cambios sin terminar y debo cambiar de rama</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git stash</span><br>
+<span class="t-output">Saved working directory and index state WIP on main</span><br><br>
+<span class="t-comment"># Hago lo que necesito en otra rama...</span><br>
+<span class="t-comment"># Luego recupero mis cambios guardados</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git stash pop</span><br>
+<span class="t-output">On branch main: Changes not staged for commit</span><br>
+<span class="t-output">  modified: index.html  ← tus cambios de vuelta</span><br><br>
+<span class="t-comment"># Ver todos los stash guardados</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git stash list</span><br>
+<span class="t-output">stash@{0}: WIP on main: a1b2c3d mensaje</span>`
+  },
+  remote: {
+    title: 'git remote add — ejemplo',
+    html: `<span class="t-comment"># Conectar repo local con GitHub</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git remote add origin <span class="t-string">https://github.com/user/repo.git</span></span><br><br>
+<span class="t-comment"># Verificar la conexión</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git remote <span class="t-flag">-v</span></span><br>
+<span class="t-output">origin  https://github.com/user/repo.git (fetch)</span><br>
+<span class="t-output">origin  https://github.com/user/repo.git (push)</span><br><br>
+<span class="t-comment"># Cambiar la URL del remoto</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git remote set-url origin <span class="t-string">https://github.com/user/nuevo.git</span></span>`
+  },
+  gitignore: {
+    title: '.gitignore — ejemplo',
+    html: `<span class="t-comment"># Crear el archivo .gitignore</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">touch .gitignore</span><br><br>
+<span class="t-comment"># Contenido típico de .gitignore:</span><br>
+<span class="t-output"><span class="t-file">node_modules/</span>     ← carpeta de dependencias</span><br>
+<span class="t-output"><span class="t-file">.env</span>              ← variables de entorno secretas</span><br>
+<span class="t-output"><span class="t-file">*.log</span>             ← todos los archivos .log</span><br>
+<span class="t-output"><span class="t-file">dist/</span>             ← archivos compilados</span><br>
+<span class="t-output"><span class="t-file">.DS_Store</span>         ← archivos de Mac</span><br><br>
+<span class="t-comment"># Git ya no rastreará esos archivos/carpetas</span><br>
+<span class="t-prompt">$ </span><span class="t-cmd">git status</span><br>
+<span class="t-output">nothing to commit (node_modules ignorado ✓)</span>`
+  }
+};
+
+function showExample(key) {
+  const ex = examples[key];
+  const terminal = document.getElementById('example-terminal');
+  const title = document.getElementById('term-title');
+  const body = document.getElementById('term-body');
+  title.textContent = ex.title;
+  body.innerHTML = ex.html;
+  terminal.style.display = 'block';
+  terminal.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function copyCode(btn) {
+  const body = btn.nextElementSibling.nextElementSibling;
+  const text = body.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ copiado';
+    setTimeout(() => btn.textContent = 'copiar', 2000);
+  });
+}
+
+// QUIZ ENGINE
+let attempt = 1;
+const MAX_ATTEMPTS = 3;
+const TOTAL_Q = 15;
+let answered = {};
+
+document.querySelectorAll('.quiz-opt').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const q = this.dataset.q;
+    if (answered[q]) return;
+    answered[q] = this.dataset.correct === 'true';
+    const siblings = document.querySelectorAll(`.quiz-opt[data-q="${q}"]`);
+    siblings.forEach(s => {
+      s.disabled = true;
+      s.style.cursor = 'default';
+      if (s.dataset.correct === 'true') s.classList.add('correct');
+    });
+    if (this.dataset.correct !== 'true') this.classList.add('wrong');
+    const count = Object.keys(answered).length;
+    document.getElementById('quizProgress').textContent = `${count} / ${TOTAL_Q} respondidas`;
+  });
+});
+
+function submitQuiz() {
+  const count = Object.keys(answered).length;
+  if (count < TOTAL_Q) {
+    for (let i = 1; i <= TOTAL_Q; i++) {
+      if (!answered[i]) {
+        answered[i] = false;
+        const opts = document.querySelectorAll(`.quiz-opt[data-q="${i}"]`);
+        opts.forEach(s => {
+          s.disabled = true;
+          s.style.cursor = 'default';
+          if (s.dataset.correct === 'true') s.classList.add('correct');
+        });
+      }
+    }
+  }
+  const correct = Object.values(answered).filter(Boolean).length;
+  const score = Math.round((correct / TOTAL_Q) * 5 * 10) / 10;
+  document.getElementById('quizContainer').style.display = 'none';
+  const panel = document.getElementById('scorePanel');
+  panel.classList.add('show');
+  const sv = document.getElementById('scoreValue');
+  sv.textContent = score.toFixed(1);
+  sv.style.color = score >= 4 ? 'var(--green)' : score >= 3 ? 'var(--accent2)' : 'var(--accent)';
+  document.getElementById('scoreDetail').textContent = `Correctas: ${correct} de ${TOTAL_Q} · Intento ${attempt} de ${MAX_ATTEMPTS}`;
+  let msg = '', msgColor = '';
+  if (score >= 4.5) { msg = '🏆 ¡Excelente! Dominas Git perfectamente.'; msgColor = 'rgba(78,201,176,.15)'; }
+  else if (score >= 4.0) { msg = '🎉 ¡Muy bien! Tienes un sólido conocimiento de Git.'; msgColor = 'rgba(78,201,176,.1)'; }
+  else if (score >= 3.0) { msg = '👍 Aprobado. Repasa los temas donde fallaste.'; msgColor = 'rgba(247,183,49,.1)'; }
+  else { msg = '📚 Necesitas repasar más. ¡Lee el contenido de esta página y vuelve!'; msgColor = 'rgba(240,80,51,.1)'; }
+  const msgEl = document.getElementById('scoreMsg');
+  msgEl.textContent = msg;
+  msgEl.style.background = msgColor;
+  msgEl.style.color = score >= 3 ? 'var(--text)' : 'var(--muted)';
+  const retryBtn = document.getElementById('retryBtn');
+  if (attempt >= MAX_ATTEMPTS) {
+    retryBtn.disabled = true;
+    retryBtn.textContent = `✗ Sin más intentos (${MAX_ATTEMPTS}/${MAX_ATTEMPTS} usados)`;
+  } else {
+    retryBtn.disabled = false;
+    retryBtn.textContent = `🔄 Intentar de nuevo (${attempt}/${MAX_ATTEMPTS} intentos usados)`;
+  }
+}
+
+function retryQuiz() {
+  if (attempt >= MAX_ATTEMPTS) return;
+  attempt++;
+  answered = {};
+  document.querySelectorAll('.quiz-opt').forEach(btn => {
+    btn.disabled = false;
+    btn.style.cursor = 'pointer';
+    btn.classList.remove('correct', 'wrong');
+  });
+  document.getElementById('quizProgress').textContent = `0 / ${TOTAL_Q} respondidas`;
+  document.getElementById('attemptBadge').textContent = `Intento ${attempt} de ${MAX_ATTEMPTS}`;
+  document.getElementById('scorePanel').classList.remove('show');
+  document.getElementById('quizContainer').style.display = 'block';
+  document.getElementById('quizContainer').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Intersection Observer para animar pasos
+const stepEls = document.querySelectorAll('.step');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 100);
+      observer.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15 });
+stepEls.forEach(s => observer.observe(s));
+
+// Nav anchors: scroll safely to section targets even with sticky header
+document.querySelectorAll('nav a[href^="#"]').forEach(link => {
+  link.addEventListener('click', function(event) {
+    const targetId = this.getAttribute('href').slice(1);
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    event.preventDefault();
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', `#${targetId}`);
+  });
+});
+</script>
+</body>
+</html>
