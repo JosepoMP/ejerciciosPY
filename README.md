@@ -53,22 +53,6 @@ El objetivo de este repositorio es llevar un orden de todos los ejercicios y act
 
 ---
 
-## 📁 Organización
-
-Los archivos y carpetas estarán organizados por semanas, temas o actividades.
-
-Ejemplo:
-
-```bash
-📂 Semana-01
-📂 Semana-02
-📂 Talleres
-📂 Ciclos
-📂 Funciones
-```
-
----
-
 ## ⚠️ Nota importante
 
 Durante el desarrollo de este repositorio tuvimos algunas dificultades para trabajar en equipo usando GitHub, especialmente con temas como los **commits**, las **ramas** y la forma correcta de que cada integrante subiera sus archivos al mismo repositorio.
